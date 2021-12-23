@@ -11,6 +11,11 @@ BearerToken = keyring.get_password("twitter", "bearertoken")
 AccessToken = keyring.get_password("twitter", "accesstoken")
 AccessTokenSecret = keyring.get_password("twitter", "accesstokensecret")
 
+# Telegram Bot Details
+botUsername = "GimmeThemTweets_Bot"
+chatID = "641613358"
+botAPI = keyring.get_password("Telegram", "API")
+
 # List of users to follow
 usernames = [
     "DataSerenity"  # @DataSerenity without the @
