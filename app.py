@@ -3,6 +3,7 @@ import requests
 import json
 import time
 import keyring
+import requests
 
 # Setting Twitter API Credentials
 ApiKey = keyring.get_password("twitter", "apikey")
@@ -13,7 +14,7 @@ AccessTokenSecret = keyring.get_password("twitter", "accesstokensecret")
 
 # Telegram Bot Details
 botUsername = "GimmeThemTweets_Bot"
-chatID = "641613358"
+chatID = "-641613358"
 botAPI = keyring.get_password("Telegram", "API")
 
 # List of users to follow
@@ -82,7 +83,9 @@ def send_notification(username, tweet):
     date, time = tweet['created_at'].split("T")
     time = time[:8] # Get the time up to seconds precision
     message = "{} on {} at {}\n{}".format(username, date, time, tweet['text'])
-    print(message)
+    url = f"https://api.telegram.org/bot{botAPI}/sendMessage?chat_id={chatID}&text={message}"
+    # Call URL
+    requests.get(url)
 
 # Create URL for ID retrieval
 def create_ID_url(username, user_fields):
