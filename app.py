@@ -2,9 +2,7 @@
 import requests
 import json
 import time
-import datetime
 import keyring
-import tweepy
 
 # Setting Twitter API Credentials
 ApiKey = keyring.get_password("twitter", "apikey")
@@ -122,7 +120,6 @@ def main():
         # Iterate through the list of users
         for username in usernames:
             params = get_params()
-            user_id = userIDs[username]
             url = userURLs[username]
             json_response = connect_to_endpoint(url, params)
             # print(json.dumps(json_response, indent = 4, sort_keys = True))
