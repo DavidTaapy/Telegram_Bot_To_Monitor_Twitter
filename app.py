@@ -3,7 +3,6 @@ import requests
 import json
 import time
 import keyring
-import requests
 
 # Setting Twitter API Credentials
 ApiKey = keyring.get_password("twitter", "apikey")
@@ -40,7 +39,8 @@ def generate_URLs():
     for username in usernames:
         user_id = userIDs[username]
         url = create_url(user_id)
-        userURLs[username] = url                # Add url to a list to be used in the future to reduce overhead
+        # Add url to a list to be used in the future to reduce overhead
+        userURLs[username] = url
 
 # Get parameters to filter tweets
 def get_params():
@@ -61,7 +61,7 @@ def bearer_oauth(r):
 
 # Connect to the endpoint
 def connect_to_endpoint(url, params):
-    response = requests.request("GET", url, auth = bearer_oauth, params = params)
+    response = requests.request("GET", url, auth=bearer_oauth, params=params)
     if response.status_code != 200:
         raise Exception(
             "Request returned an error: {} {}".format(
@@ -76,12 +76,13 @@ def get_last_tweeted():
         params = get_params()
         url = userURLs[username]
         json_response = connect_to_endpoint(url, params)
-        broadcasted[url] = json_response['data'][0]['created_at']    # Stores the created_at time for the users' last tweets
+        # Stores the created_at time for the users' last tweets
+        broadcasted[url] = json_response['data'][0]['created_at']
 
 # Send a telegram message
 def send_notification(username, tweet):
     date, time = tweet['created_at'].split("T")
-    time = time[:8] # Get the time up to seconds precision
+    time = time[:8]  # Get the time up to seconds precision
     message = "{} on {} at {}\n{}".format(username, date, time, tweet['text'])
     url = f"https://api.telegram.org/bot{botAPI}/sendMessage?chat_id={chatID}&text={message}"
     # Call URL
@@ -90,7 +91,8 @@ def send_notification(username, tweet):
 # Create URL for ID retrieval
 def create_ID_url(username, user_fields):
     userName = f"usernames={username}"
-    url = "https://api.twitter.com/2/users/by?{}&{}".format(userName, user_fields)
+    url = "https://api.twitter.com/2/users/by?{}&{}".format(
+        userName, user_fields)
     return url
 
 # Endpoint for ID retrieval
@@ -113,8 +115,9 @@ def generate_IDs():
         # print(json_response)
         userIDs[username] = int(json_response['data'][0]["id"])
 
+# To run on program start
 def main():
-    startTime = time.time() # Time the program was started
+    startTime = time.time()  # Time the program was started
     # Generate a dict with user ID
     generate_IDs()
     # print(userIDs)
@@ -132,14 +135,16 @@ def main():
             json_response = connect_to_endpoint(url, params)
             # print(json.dumps(json_response, indent = 4, sort_keys = True))
             # Filter out new Tweets
-            tweets = [x for x in json_response["data"] if x["created_at"] > broadcasted[url]]
+            tweets = [x for x in json_response["data"]
+                      if x["created_at"] > broadcasted[url]]
             # Update last tweet time in broadcasted
             if tweets:
                 broadcasted[url] = tweets[0]["created_at"]
             # Broadcast new tweet in telegram group
             for tweet in tweets:
                 send_notification(username, tweet)
-        time.sleep(60.0 - (time.time() - startTime) % 60.0) # Sleep for remaining time left in the one minute
+        # Sleep for remaining time left in three minutes
+        time.sleep(180.0 - (time.time() - startTime) % 180.0)
 
 # Execute on running program
 if __name__ == "__main__":
