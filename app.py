@@ -144,6 +144,7 @@ def main():
             for tweet in tweets:
                 send_notification(username, tweet)
         # Sleep for remaining time left in three minutes
+        # Three minutes interval to ensure that number of calls is within API limits
         time.sleep(180.0 - (time.time() - startTime) % 180.0)
 
 # Execute on running program
